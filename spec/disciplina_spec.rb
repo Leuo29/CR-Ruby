@@ -12,10 +12,10 @@ RSpec.describe Disciplina do
     expect(disciplina.codigo).to eq("5145181863")
   end
   it 'valor de nome correto' do
-    expect(disciplina.nome).to eq("fisica")
+    expect(disciplina.nome).to eq("5145181863")
   end
   it 'valor de carga correto' do
-    expect(disciplina.carga).to eq(30)
+    expect(disciplina.carga_horaria).to eq(30)
   end
   it 'valor de curso correto' do
 

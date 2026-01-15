@@ -7,5 +7,6 @@ class Nota
     @periodo = periodo
 
     raise ArgumentError, "Nota fora do intervalo" unless valor.between?(0, 10)
+    @valor = valor
   end
 end

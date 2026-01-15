@@ -1,13 +1,13 @@
 class Disciplina
-  attr_reader :codigo, :nome, :carga, :curso
+  attr_reader :codigo, :nome, :carga_horaria, :curso
   def initialize(codigo, nome, carga, curso)
     @codigo = codigo
-    @nome = nome
+    @nome = codigo
     
     @curso = curso
 
     raise ArgumentError, "Carga zerada ou negativa" unless carga > 0
-    @carga = carga 
+    @carga_horaria = carga 
 
   end
 

@@ -1,14 +1,16 @@
 require 'csv'
 
+class Leitor
+  attr_reader :linhas
 
-  class Leitor
-    attr_reader :linhas
+  def initialize(caminho_do_arquivo)
+    @linhas = []
 
-    def initialize(arquivo_ou_caminho)
-      @linhas = []
-
-      CSV.parse(arquivo_ou_caminho, headers: true) do |row|
-        @linhas << row.to_h
-      end
+    
+    CSV.foreach(caminho_do_arquivo, headers: true) do |row|
+      @linhas << row.to_h
     end
+  rescue Errno::ENOENT
+    raise "Erro: O arquivo '#{caminho_do_arquivo}' não foi encontrado."
   end
+end

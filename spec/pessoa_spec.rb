@@ -2,7 +2,7 @@ require 'spec_helper'
 require_relative '../lib/dominio/pessoa'
 
 RSpec.describe Pessoa do
-  # Criamos os dados de exemplo aqui
+
   let(:nome) { "Fulano de Tal" }
   let(:matricula) { 1001 }
   let(:data_nasc) { "2000-01-01" }

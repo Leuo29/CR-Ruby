@@ -1,3 +1,8 @@
+require_relative '../dominio/nota'
+require_relative '../dominio/curso'
+require_relative '../dominio/disciplina'
+require_relative '../dominio/matricula'
+
 class Gerenciador
   attr_reader :notas
 
@@ -11,44 +16,62 @@ class Gerenciador
 
   def processar
     @dados_brutos.each do |linha|
-      # 1. Gerenciar Curso
-      codigo_curso = linha["COD_CURSO"]
-      @repositorio_cursos[codigo_curso] ||= Curso.new(codigo_curso)
-      curso_atual = @repositorio_cursos[codigo_curso]
       
-      # 2. Gerenciar Disciplina (Usando o nome carga_horaria conforme alinhamos)
-      codigo_disc = linha["COD_DISCIPLINA"]
-      valor_carga = linha["CARGA_HORARIA"].to_i 
-      @repositorio_disciplinas[codigo_disc] ||= Disciplina.new(codigo_disc, codigo_disc, valor_carga, curso_atual)
-      disciplina_atual = @repositorio_disciplinas[codigo_disc]
+      curso      = buscar_ou_criar_curso(linha["COD_CURSO"])
+      disciplina = buscar_ou_criar_disciplina(linha, curso)
+      matricula  = buscar_ou_criar_matricula(linha["MATRICULA"], curso)
       
-      # 3. Gerenciar Matrícula (Simples, por ID)
-      matricula_id = linha["MATRICULA"]
-      @repositorio_matriculas[matricula_id] ||= begin
-        m = Matricula.new(matricula_id, curso_atual)
-        curso_atual.add_matricula(m)
-        m
-      end
-      matricula_atual = @repositorio_matriculas[matricula_id]
-
-      # 4. Criar Nota (Split do período: "2023.1" -> "2023" e "1")
-      ano, periodo_semestre = linha["ANO_SEMESTRE"].split('.')
-      valor_n = linha["NOTA"].to_f
       
-      # Nota.new(valor, disciplina, ano, periodo)
-      nova_nota = Nota.new(valor_n, disciplina_atual, ano.to_i, periodo_semestre.to_i)
+      vincular_nota(linha, disciplina, matricula)
       
-      # 5. Conexões Finais
-      matricula_atual.add_notas(nova_nota)
-      @notas << nova_nota
       
-      # 6. Atualizar CR da Matrícula
-      matricula_atual.calcula_cr
-      curso_atual.calcula_media_cr
+      matricula.calcula_cr
+      curso.calcula_media_cr
     end
   end
 
-  def matriculas; @repositorio_matriculas.values; end
-  def disciplinas; @repositorio_disciplinas.values; end
-  def cursos; @repositorio_cursos.values; end
+    
+  def matriculas
+    @repositorio_matriculas.values
+  end
+
+  def disciplinas
+    @repositorio_disciplinas.values
+  end
+
+  def cursos
+    @repositorio_cursos.values
+  end
+
+  private
+
+  def buscar_ou_criar_curso(codigo)
+    @repositorio_cursos[codigo] ||= Curso.new(codigo)
+  end
+
+  def buscar_ou_criar_disciplina(linha, curso)
+    codigo = linha["COD_DISCIPLINA"]
+    carga  = linha["CARGA_HORARIA"].to_i
+    
+    @repositorio_disciplinas[codigo] ||= Disciplina.new(codigo, codigo, carga, curso)
+  end
+
+  def buscar_ou_criar_matricula(id, curso)
+    @repositorio_matriculas[id] ||= begin
+      m = Matricula.new(id, curso)
+      curso.add_matricula(m)
+      m
+    end
+  end
+
+  def vincular_nota(linha, disciplina, matricula)
+    ano, periodo = linha["ANO_SEMESTRE"].split('.')
+    valor        = linha["NOTA"].to_f
+    
+    nova_nota = Nota.new(valor, disciplina, ano.to_i, periodo.to_i)
+    
+    matricula.add_notas(nova_nota)
+    @notas << nova_nota
+  end
+
 end

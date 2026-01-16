@@ -3,7 +3,7 @@ require_relative '../lib/dominio/curso'
 require_relative '../lib/dominio/matricula'
 
 RSpec.describe Curso do
-  # Criamos os dados de exemplo aqui
+ 
   
   let(:codigo) { "0000000000000" }
   let(:curso) { Curso.new(codigo) }
@@ -26,7 +26,7 @@ RSpec.describe Curso do
     it 'calculo do cr do curso' do
       matricula1 = Matricula.new("2023.1", "Engenharia")
       matricula2 = Matricula.new("2023.2", "Engenharia")
-      # Criando objetos fake para simular as notas e disciplinas
+      
       disc1 = double('Disciplina', carga_horaria: 60)
       nota1 = double('Nota', valor: 80, disciplina: disc1)
       
@@ -43,7 +43,7 @@ RSpec.describe Curso do
       
       curso.add_matricula(matricula1)
       curso.add_matricula(matricula2)
-      # Cálculo: (80*60/60 + 100*30/30) / 2 = 90.00
+      # conta: (80*60/60 + 100*30/30) / 2 = 90.00
       expect(curso.calcula_media_cr).to eq(90.00)
     end
   end

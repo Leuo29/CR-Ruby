@@ -14,7 +14,7 @@ RSpec.describe Gerenciador do
         "COD_CURSO" => "ENG_COMP",
         "NOTA" => 8.5,
         "CARGA_HORARIA" => 60,
-        "ANO_SEMESTRE" => "2023.1"
+        "ANO_SEMESTRE" => "20231"
       }
     ]
   end
@@ -22,7 +22,7 @@ RSpec.describe Gerenciador do
   let(:gerenciador) { Gerenciador.new(dados_brutos) }
 
   describe '#processar' do
-    before { gerenciador.processar } 
+    before { gerenciador.processar }
     #------------curso_----------------------
     it 'cria instâncias da classe Curso' do
       expect(gerenciador.cursos).to all(be_a(Curso))
@@ -147,7 +147,7 @@ RSpec.describe Gerenciador do
     it 'inicia a nota com o periodo certo' do
       nota = gerenciador.notas.first
       expect("#{nota.ano}.#{nota.periodo}").to eq("2023.1")
-    end 
+    end
 
 
     it 'mantém o aluno no primeiro curso encontrado e ignora trocas subsequentes' do

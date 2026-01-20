@@ -9,51 +9,51 @@ class Gerenciador
   def initialize(dados_brutos)
     @dados_brutos = dados_brutos
     @repositorio_cursos = {}
-    @repositorio_disciplinas = {}
     @repositorio_matriculas = {}
     @notas = []
   end
 
   def processar
     @dados_brutos.each do |linha|
+      # 1. pega o curso
+      curso = buscar_ou_criar_curso(linha["COD_CURSO"].to_s)
       
-      curso      = buscar_ou_criar_curso(linha["COD_CURSO"])
-      disciplina = buscar_ou_criar_disciplina(linha, curso)
-      matricula  = buscar_ou_criar_matricula(linha["MATRICULA"], curso)
+      # 2. extrai ano e sem (ex: 20231 -> 2023 e 1)
+      ano_semestre = linha["ANO_SEMESTRE"].to_s
+      ano = ano_semestre[0..3].to_i
+      semestre = ano_semestre[4].to_i
       
+      # 3. cria disc nova p cada linha (igual seu python)
+      # n usa repo aqui p n cagar o cache de curso
+      codigo_disc = linha["COD_DISCIPLINA"]
+      carga = linha["CARGA_HORARIA"].to_i
+      disciplina = Disciplina.new(codigo_disc, codigo_disc, carga, curso)
       
-      vincular_nota(linha, disciplina, matricula)
+      # 4. gerencia matricula
+      matricula = buscar_ou_criar_matricula(linha["MATRICULA"].to_s, curso)
       
+      # 5. cria e vincula nota
+      valor = linha["NOTA"].to_f
+      nova_nota = Nota.new(valor, disciplina, ano, semestre)
       
-      matricula.calcula_cr
-      curso.calcula_media_cr
+      matricula.add_notas(nova_nota)
+      @notas << nova_nota
     end
+
+    # 6. calcula cr dps de tudo (igual o python)
+    @repositorio_matriculas.values.each(&:calcula_cr)
   end
 
-    
-  def matriculas
-    @repositorio_matriculas.values
-  end
-
+  def matriculas; @repositorio_matriculas.values; end
+  def cursos; @repositorio_cursos.values; end
   def disciplinas
-    @repositorio_disciplinas.values
-  end
-
-  def cursos
-    @repositorio_cursos.values
+    @notas.map(&:disciplina).uniq
   end
 
   private
 
   def buscar_ou_criar_curso(codigo)
     @repositorio_cursos[codigo] ||= Curso.new(codigo)
-  end
-
-  def buscar_ou_criar_disciplina(linha, curso)
-    codigo = linha["COD_DISCIPLINA"]
-    carga  = linha["CARGA_HORARIA"].to_i
-    
-    @repositorio_disciplinas[codigo] ||= Disciplina.new(codigo, codigo, carga, curso)
   end
 
   def buscar_ou_criar_matricula(id, curso)
@@ -63,15 +63,4 @@ class Gerenciador
       m
     end
   end
-
-  def vincular_nota(linha, disciplina, matricula)
-    ano, periodo = linha["ANO_SEMESTRE"].split('.')
-    valor        = linha["NOTA"].to_f
-    
-    nova_nota = Nota.new(valor, disciplina, ano.to_i, periodo.to_i)
-    
-    matricula.add_notas(nova_nota)
-    @notas << nova_nota
-  end
-
 end

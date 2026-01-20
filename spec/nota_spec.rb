@@ -15,8 +15,8 @@ RSpec.describe Nota do
     expect("#{nota.ano}.#{nota.periodo}").to eq("2020.2")
   end
 
-  it 'lança erro se a nota for maior que 10' do
-    expect { Nota.new(11, "DISC", 2020, 1) }.to raise_error(StandardError)
+  it 'lança erro se a nota for maior que 100' do
+    expect { Nota.new(101, "DISC", 2020, 1) }.to raise_error(StandardError)
   end
 
   it 'lança erro se a nota for negativa' do
